@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import "./Auth.css"
 
 export default function Auth({ setUser }) {
   const [email, setEmail] = useState("");
@@ -13,8 +14,11 @@ export default function Auth({ setUser }) {
       let userCredential;
       if (isLogin) {
         userCredential = await signInWithEmailAndPassword(auth, email, password);
+        alert("Logged in ✅");
+
       } else {
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
       }
       setUser(userCredential.user);
     } catch (error) {
@@ -23,16 +27,31 @@ export default function Auth({ setUser }) {
   };
 
   return (
-    <div>
+    <>
+
+    <div className="auth-container">
+      <div className="auth-box">
       <h2>{isLogin ? "Login" : "Sign Up"}</h2>
       <form onSubmit={handleSubmit}>
         <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
         <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
       </form>
-      <button onClick={() => setIsLogin(!isLogin)}>
+
+      <a 
+        href="#" 
+        className="toggle-link" 
+        onClick={(e) => {
+          e.preventDefault(); // prevent page reload
+          setIsLogin(!isLogin);
+        }}
+      >
         {isLogin ? "Create new account" : "Already have account?"}
-      </button>
+      </a>
+
+      </div>
     </div>
+
+    </>
   );
 }
