@@ -9,8 +9,6 @@
 .auth-box {
     background: white;
     padding: 2rem 3rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     width: 350px;
     text-align: center;
 }
@@ -61,6 +59,8 @@
   text-decoration: underline;
   cursor: pointer;
   font-weight: 500;
+  background: none;
+  border: none;
 }
 
 

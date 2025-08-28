@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import "./Auth.css"
+import "./Auth.css"; // make sure your CSS file is imported
 
 export default function Auth({ setUser }) {
   const [email, setEmail] = useState("");
@@ -14,11 +14,8 @@ export default function Auth({ setUser }) {
       let userCredential;
       if (isLogin) {
         userCredential = await signInWithEmailAndPassword(auth, email, password);
-        alert("Logged in ✅");
-
       } else {
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
       }
       setUser(userCredential.user);
     } catch (error) {
@@ -27,31 +24,36 @@ export default function Auth({ setUser }) {
   };
 
   return (
-    <>
-
     <div className="auth-container">
       <div className="auth-box">
-      <h2>{isLogin ? "Login" : "Sign Up"}</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-        <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
-      </form>
+        <h2>{isLogin ? "Login" : "Sign Up"}</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
+        </form>
 
-      <a 
-        href="#" 
-        className="toggle-link" 
-        onClick={(e) => {
-          e.preventDefault(); // prevent page reload
-          setIsLogin(!isLogin);
-        }}
-      >
-        {isLogin ? "Create new account" : "Already have account?"}
-      </a>
-
+        {/* Proper button styled like a link */}
+        <button
+          type="button"
+          className="toggle-link"
+          onClick={() => setIsLogin(!isLogin)}
+        >
+          {isLogin ? "Create new account" : "Already have account?"}
+        </button>
       </div>
     </div>
-
-    </>
   );
 }

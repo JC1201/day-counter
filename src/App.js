@@ -1,23 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Auth from "./components/Authentication/Auth";
-import Event from "./components/Event";
+import EventSpace from "./components/EventSpace/EventSpace";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 
 function App() {
   const [user, setUser] = useState(null);
 
-  onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser);
-  });
+  // Keep track of logged-in user automatically
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <>
-    {/* <h1>Couple Day Counter ❤️</h1> */}
     <div className="App">
-      {!user ? <Auth setUser={setUser} /> : <Event user={user} />}
+      {user ? (
+        <EventSpace user={user} /> // main app component
+      ) : (
+        <Auth setUser={setUser} /> // login/signup
+      )}
     </div>
-    </>
   );
 }
 
