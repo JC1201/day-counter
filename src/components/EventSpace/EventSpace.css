@@ -1,0 +1,91 @@
+/* EventSpace.css */
+
+.event-space {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+.event-space h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.event-space button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  margin: 0.3rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+}
+
+.event-space button:hover {
+  background: #2980b9;
+}
+
+.event-space button[style*="red"] {
+  background: #e74c3c !important;
+}
+
+.event-space button[style*="red"]:hover {
+  background: #c0392b !important;
+}
+
+/* Event List */
+.event-list {
+  list-style: none;
+  padding: 0;
+}
+
+.event-card {
+  background: #fff;
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+}
+
+.event-card strong {
+  font-size: 1.2rem;
+  color: #34495e;
+}
+
+.event-status {
+  font-weight: 500;
+  color: #16a085;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+/* Image Gallery */
+.image-gallery {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.image-gallery img {
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-gallery img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

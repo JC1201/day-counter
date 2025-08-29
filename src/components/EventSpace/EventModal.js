@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
+import "./EventModal.css"; // <-- import CSS file
 
 export default function EventModal({
   isOpen,
@@ -13,40 +14,66 @@ export default function EventModal({
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [description, setDescription] = useState("");
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
-  // Pre-fill fields when editing an event
   useEffect(() => {
     if (editingEvent) {
       setTitle(editingEvent.title || "");
       setStartDate(editingEvent.startDate || "");
       setDescription(editingEvent.description || "");
+      setImagePreviews(editingEvent.imageUrls || []);
+      setImages([]);
     } else {
-      // Reset if creating new event
       setTitle("");
       setStartDate("");
       setDescription("");
+      setImagePreviews([]);
+      setImages([]);
     }
   }, [editingEvent]);
 
+  const uploadImages = async (files) => {
+    const urls = [];
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "Events-image");
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dipwgoxiy/image/upload",
+        { method: "POST", body: formData }
+      );
+
+      const data = await res.json();
+      urls.push(data.secure_url);
+    }
+    return urls;
+  };
+
   const handleSave = async () => {
     try {
+      let imageUrls = [];
+      if (images.length > 0) {
+        imageUrls = await uploadImages(images);
+      }
+
       const eventData = {
         title,
         startDate,
         description,
+        imageUrls,
       };
 
       if (editingEvent) {
-        // 🔹 Update existing event
         await onUpdateEvent(editingEvent.id, eventData);
         setEditingEvent(null);
       } else {
-        // 🔹 Add new event
         await addDoc(collection(db, "events"), eventData);
       }
 
       refreshEvents();
-      setIsOpen(false);
+      handleClose();
     } catch (error) {
       console.error("Failed to save event:", error);
       alert("Failed to save event. Please try again.");
@@ -55,7 +82,9 @@ export default function EventModal({
 
   const handleClose = () => {
     setIsOpen(false);
-    setEditingEvent(null); // reset edit mode when modal closes
+    setEditingEvent(null);
+    setImages([]);
+    setImagePreviews([]);
   };
 
   if (!isOpen) return null;
@@ -83,11 +112,35 @@ export default function EventModal({
         onChange={(e) => setDescription(e.target.value)}
       />
 
-      <div>
-        <button onClick={handleSave}>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={(e) => {
+          const files = Array.from(e.target.files);
+          setImages((prev) => [...prev, ...files]);
+          setImagePreviews((prev) => [
+            ...prev,
+            ...files.map((file) => URL.createObjectURL(file)),
+          ]);
+        }}
+      />
+
+      {imagePreviews.length > 0 && (
+        <div className="image-preview-container">
+          {imagePreviews.map((src, idx) => (
+            <img key={idx} src={src} alt={`Preview ${idx + 1}`} />
+          ))}
+        </div>
+      )}
+
+      <div className="modal-actions">
+        <button className="save-btn" onClick={handleSave}>
           {editingEvent ? "Update Event" : "Save Event"}
         </button>
-        <button onClick={handleClose}>Cancel</button>
+        <button className="cancel-btn" onClick={handleClose}>
+          Cancel
+        </button>
       </div>
     </div>
   );
