@@ -3,7 +3,7 @@
 .event-space {
   max-width: 900px;
   margin: 2rem auto;
-  padding: 1rem;
+  /* padding: 1rem; */
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #333;
 }
@@ -42,16 +42,26 @@
 .event-list {
   list-style: none;
   padding: 0;
+  /* margin: 0; */
+  width: 100%;
+  left: 0;
+  right: 0;
 }
 
 .event-card {
   background: #fff;
-  padding: 1.2rem;
+  margin: 1.2rem auto;   /* center it instead of pushing out */
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   margin-bottom: 1.5rem;
   transition: transform 0.2s ease;
+
+  width: 100%;          /* take full width of parent */
+  max-width: 850px;     /* keep inside event-space */
+  box-sizing: border-box; /* include padding/margin in width */
+  padding: 1rem;        /* optional: give breathing room */
 }
+
 
 .event-card:hover {
   transform: translateY(-3px);
@@ -67,6 +77,17 @@
   color: #16a085;
   margin-top: 0.3rem;
   display: inline-block;
+}
+
+.delete-btn {
+
+  position: absolute;
+  right: 10px;
+  background: none !important; 
+  color: black;
+  border: none;
+  margin: 0 !important;
+  padding-top: 0 !important;
 }
 
 /* Image Gallery */
@@ -89,3 +110,56 @@
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.fullscreen-overlay img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  background: none !important; 
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.arrow-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  background: none !important; 
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.arrow-btn.left {
+  left: 10px;
+}
+
+.arrow-btn.right {
+  right: 10px;
+}
+
+

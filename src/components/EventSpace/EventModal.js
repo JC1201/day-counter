@@ -16,6 +16,8 @@ export default function EventModal({
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  // const [fullscreenImage, setFullscreenImage] = useState(null); 
+
 
   useEffect(() => {
     if (editingEvent) {

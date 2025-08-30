@@ -3,12 +3,15 @@ import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firesto
 import { db } from "../../firebase";
 import EventModal from "./EventModal";
 import "./EventSpace.css"
+import { none } from "@cloudinary/url-gen/qualifiers/progressive";
 
 export default function EventSpace() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showImagesId, setShowImagesId] = useState(null); // track which event’s images to show
+  const [fullscreenImage, setFullscreenImage] = useState(null); // 👈 NEW state
+
 
   const fetchEvents = async () => {
     const snapshot = await getDocs(collection(db, "events"));
@@ -66,84 +69,137 @@ export default function EventSpace() {
       {events.length === 0 ? (
         <p>No events set yet.</p>
       ) : (
+        <>
         <ul className="event-list">
-          {events.map((event) => {
-            const toMidnight = (d) =>
-              new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            {events.map((event) => {
+              const toMidnight = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-            const today = toMidnight(new Date());
-            const startDate = toMidnight(new Date(event.startDate));
+              const today = toMidnight(new Date());
+              const startDate = toMidnight(new Date(event.startDate));
 
-            const diffDays = Math.floor(
-              (startDate - today) / (1000 * 60 * 60 * 24)
-            );
+              const diffDays = Math.floor(
+                (startDate - today) / (1000 * 60 * 60 * 24)
+              );
 
-            let status;
-            if (diffDays > 0) {
-              status = `Arrive in ${diffDays} day${diffDays === 1 ? "" : "s"}`;
-            } else if (diffDays < 0) {
-              const passed = Math.abs(diffDays);
-              status = `${passed} day${passed === 1 ? "" : "s"} passed`;
-            } else {
-              status = "Today";
-            }
+              let status;
+              if (diffDays > 0) {
+                status = `Arrive in ${diffDays} day${diffDays === 1 ? "" : "s"}`;
+              } else if (diffDays < 0) {
+                const passed = Math.abs(diffDays);
+                status = `${passed} day${passed === 1 ? "" : "s"} passed`;
+              } else {
+                status = "Today";
+              }
 
-            return (
-              <li className= "event-card" key={event.id} style={{ marginBottom: "20px" }}>
-                <strong>{event.title}</strong> – {event.startDate}
-                <br />
-                {event.description}
-                <br />
-                {status}
-                <br />
-
-                {/* Show/Hide Images Button */}
-                {event.imageUrls.length > 0 && (
+              return (
+                <li className="event-card" key={event.id} style={{ marginBottom: "20px" }}>
+       
+                  <strong>{event.title}</strong> – {event.startDate}
                   <button
-                    onClick={() =>
-                      setShowImagesId(
-                        showImagesId === event.id ? null : event.id
-                      )
-                    }
+                    className="delete-btn"
+                    onClick={() => handleDelete(event.id)}
+                    style={{ background: none, color: "black" }}
                   >
-                    {showImagesId === event.id ? "Hide Pictures" : "Show Pictures"}
+                    X
                   </button>
-                )}
+                  <br />
+                  {event.description}
+                  <br />
+                  {status}
+                  <br />
 
-                {/* Display all images if toggled */}
-                {showImagesId === event.id && (
-                  <div className="image-gallery" style={{ display: "flex", gap: "5px", marginTop: "10px", flexWrap: "wrap" }}>
-                    {event.imageUrls.map((url, idx) => (
-                      <img
-                        key={idx}
-                        src={url}
-                        alt={`Event ${idx + 1}`}
-                        style={{ width: "120px", borderRadius: "5px" }}
-                      />
-                    ))}
-                  </div>
-                )}
+                  {/* Show/Hide Images Button */}
+                  {event.imageUrls.length > 0 && (
+                    <button
+                      onClick={() => setShowImagesId(
+                        showImagesId === event.id ? null : event.id
+                      )}
+                    >
+                      {showImagesId === event.id ? "Hide Pictures" : "Show Pictures"}
+                    </button>
+                  )}
 
-                <br />
-                <button
-                  onClick={() => {
-                    setEditingEvent(event);
-                    setIsModalOpen(true);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(event.id)}
-                  style={{ background: "red", color: "white" }}
-                >
-                  Delete
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                  {/* Display all images if toggled */}
+                  {showImagesId === event.id && (
+                    <div className="image-gallery" style={{ display: "flex", gap: "5px", marginTop: "10px", flexWrap: "wrap" }}>
+                      {event.imageUrls.map((url, idx) => (
+                        <img
+                          key={idx}
+                          src={url}
+                          alt={`Event ${idx + 1}`}
+                          onClick={() => setFullscreenImage(url)}
+
+                          style={{ width: "120px", borderRadius: "5px" }} />
+                      ))}
+                    </div>
+                  )}
+
+                  <br />
+                  <button
+                    onClick={() => {
+                      setEditingEvent(event);
+                      setIsModalOpen(true);
+                    } }
+                  >
+                    Edit
+                  </button>
+  
+                </li>
+              );
+            })}
+          </ul>
+
+    {fullscreenImage && (
+  <div className="fullscreen-overlay">
+    {/* Close button */}
+    <button
+      className="close-btn"
+      onClick={() => setFullscreenImage(null)}
+    >
+      ✕
+    </button>
+
+    {/* Left arrow */}
+    <button
+      className="arrow-btn left"
+      onClick={() => {
+        const currentIndex = events
+          .find((e) => e.id === showImagesId)
+          .imageUrls.indexOf(fullscreenImage);
+
+        const urls = events.find((e) => e.id === showImagesId).imageUrls;
+        const prevIndex = (currentIndex - 1 + urls.length) % urls.length;
+        setFullscreenImage(urls[prevIndex]);
+      }}
+    >
+      ◀
+    </button>
+
+    {/* The image itself */}
+    <img src={fullscreenImage} alt="fullscreen" />
+
+    {/* Right arrow */}
+    <button
+      className="arrow-btn right"
+      onClick={() => {
+        const currentIndex = events
+          .find((e) => e.id === showImagesId)
+          .imageUrls.indexOf(fullscreenImage);
+
+        const urls = events.find((e) => e.id === showImagesId).imageUrls;
+        const nextIndex = (currentIndex + 1) % urls.length;
+        setFullscreenImage(urls[nextIndex]);
+      }}
+    >
+      ▶
+    </button>
+  </div>
+)}
+
+          </>
       )}
     </div>
+
+    
   );
 }
