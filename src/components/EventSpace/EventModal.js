@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
-import "./EventModal.css"; // <-- import CSS file
+import { GoogleMap, LoadScript, Marker, Autocomplete } from "@react-google-maps/api";
+import "./EventModal.css";
 
 export default function EventModal({
   isOpen,
@@ -16,7 +17,6 @@ export default function EventModal({
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  // const [fullscreenImage, setFullscreenImage] = useState(null); 
 
 
   useEffect(() => {
@@ -55,17 +55,18 @@ export default function EventModal({
 
   const handleSave = async () => {
     try {
-      let imageUrls = [];
+      let newImageUrls = [];
       if (images.length > 0) {
-        imageUrls = await uploadImages(images);
+        newImageUrls = await uploadImages(images);
       }
 
       const eventData = {
         title,
         startDate,
         description,
-        imageUrls,
-      };
+        imageUrls: editingEvent
+        ? [...(editingEvent.imageUrls || []), ...newImageUrls]
+        : newImageUrls,      };
 
       if (editingEvent) {
         await onUpdateEvent(editingEvent.id, eventData);

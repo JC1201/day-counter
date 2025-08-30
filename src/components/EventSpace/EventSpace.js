@@ -9,9 +9,11 @@ export default function EventSpace() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [showImagesId, setShowImagesId] = useState(null); // track which event’s images to show
-  const [fullscreenImage, setFullscreenImage] = useState(null); // 👈 NEW state
-
+   // track which event’s images to show
+  const [showImagesId, setShowImagesId] = useState(null);
+  const [fullscreenImage, setFullscreenImage] = useState(null); 
+  // day viewing mode
+  const [eventModes, setEventModes] = useState(); 
 
   const fetchEvents = async () => {
     const snapshot = await getDocs(collection(db, "events"));
@@ -50,6 +52,26 @@ export default function EventSpace() {
     }
   };
 
+  const handleModeChange = (eventId, mode) => {
+  setEventModes((prev) => ({
+    ...prev,
+    [eventId]: mode
+  }));
+
+  localStorage.setItem("eventModes", JSON.stringify({
+    ...eventModes,
+    [eventId]: mode
+  }));
+  };
+
+  // Load saved preferences
+  useEffect(() => {
+    const saved = localStorage.getItem("eventModes");
+    if (saved) {
+      setEventModes(JSON.parse(saved));
+    }
+  }, []);
+
   return (
     <div className="event-space">
       {!isModalOpen && !editingEvent && (
@@ -80,16 +102,31 @@ export default function EventSpace() {
               const diffDays = Math.floor(
                 (startDate - today) / (1000 * 60 * 60 * 24)
               );
+        
+        let status;
+        const modes = eventModes?.[event.id] || "days"; // <-- key fix
 
-              let status;
-              if (diffDays > 0) {
-                status = `Arrive in ${diffDays} day${diffDays === 1 ? "" : "s"}`;
-              } else if (diffDays < 0) {
-                const passed = Math.abs(diffDays);
-                status = `${passed} day${passed === 1 ? "" : "s"} passed`;
-              } else {
-                status = "Today";
-              }
+        if (diffDays > 0) {
+          if (modes === "days") {
+            status = `Arrive in ${diffDays} day${diffDays === 1 ? "" : "s"}`;
+          } else {
+            const months = Math.floor(diffDays / 30); // approx month
+            const days = diffDays % 30;
+            status = `Arrive in ${months > 0 ? months + " month" + (months > 1 ? "s " : " ") : ""}${days} day${days !== 1 ? "s" : ""}`;
+          }
+        } else if (diffDays < 0) {
+          const passed = Math.abs(diffDays);
+          if (modes === "days") {
+            status = `${passed} day${passed === 1 ? "" : "s"} passed`;
+          } else {
+            const months = Math.floor(passed / 30);
+            const days = passed % 30;
+            status = `${months > 0 ? months + " month" + (months > 1 ? "s " : " ") : ""}${days} day${days !== 1 ? "s" : ""} passed`;
+          }
+        } else {
+          status = "Today";
+        }
+
 
               return (
                 <li className="event-card" key={event.id} style={{ marginBottom: "20px" }}>
@@ -107,6 +144,17 @@ export default function EventSpace() {
                   <br />
                   {status}
                   <br />
+
+                  
+                  <select
+                    value={eventModes[event.id] || "days"}
+                    onChange={(e) => handleModeChange(event.id, e.target.value)}
+                  >
+                    <option value="days">Days Only</option>
+                    <option value="months">Months + Days</option>
+                  </select>
+
+                  
 
                   {/* Show/Hide Images Button */}
                   {event.imageUrls.length > 0 && (
