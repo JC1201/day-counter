@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
 import { GoogleMap, LoadScript, Marker, Autocomplete } from "@react-google-maps/api";
@@ -17,7 +17,9 @@ export default function EventModal({
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-
+  const [location, setLocation] = useState("");
+  const [coordinates, setCoordinates] = useState(null);
+  const autocompleteRef = useRef(null);
 
   useEffect(() => {
     if (editingEvent) {
@@ -64,9 +66,13 @@ export default function EventModal({
         title,
         startDate,
         description,
+        location,        // 🔹 Save location name
+        coordinates,     // 🔹 Save lat/lng
         imageUrls: editingEvent
         ? [...(editingEvent.imageUrls || []), ...newImageUrls]
-        : newImageUrls,      };
+        : newImageUrls,      
+
+      };
 
       if (editingEvent) {
         await onUpdateEvent(editingEvent.id, eventData);
@@ -80,6 +86,17 @@ export default function EventModal({
     } catch (error) {
       console.error("Failed to save event:", error);
       alert("Failed to save event. Please try again.");
+    }
+  };
+
+    const handlePlaceChanged = () => {
+    const place = autocompleteRef.current.getPlace();
+    if (place) {
+      setLocation(place.formatted_address);
+      setCoordinates({
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng(),
+      });
     }
   };
 
@@ -114,6 +131,33 @@ export default function EventModal({
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
+
+            {/* 🔹 Google Maps Location Input */}
+      <LoadScript googleMapsApiKey="AIzaSyAFo1i9gO7otZlFIY7OKP7oeovOF9FybM0" libraries={["places"]}>
+        <Autocomplete
+          onLoad={(ref) => (autocompleteRef.current = ref)}
+          onPlaceChanged={handlePlaceChanged}
+        >
+          <input
+            type="text"
+            placeholder="Search Location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          />
+        </Autocomplete>
+
+        {/* Show map only if coords exist */}
+        {coordinates && (
+          <GoogleMap
+            mapContainerStyle={{ height: "200px", width: "100%" }}
+            center={coordinates}
+            zoom={14}
+          >
+            <Marker position={coordinates} />
+          </GoogleMap>
+        )}
+      </LoadScript>
 
       <input
         type="file"

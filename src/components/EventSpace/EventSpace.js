@@ -4,6 +4,10 @@ import { db } from "../../firebase";
 import EventModal from "./EventModal";
 import "./EventSpace.css"
 import { none } from "@cloudinary/url-gen/qualifiers/progressive";
+import { ChevronLeft, ChevronRight, X} from "lucide-react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+
 
 export default function EventSpace() {
   const [events, setEvents] = useState([]);
@@ -74,8 +78,13 @@ export default function EventSpace() {
 
   return (
     <div className="event-space">
+
       {!isModalOpen && !editingEvent && (
-        <button onClick={() => setIsModalOpen(true)}>Add Event</button>
+        <button 
+        className="add-event-btn" 
+        onClick={() => setIsModalOpen(true)}>
+          Add Event
+        </button>
       )}
 
       <EventModal
@@ -91,7 +100,8 @@ export default function EventSpace() {
       {events.length === 0 ? (
         <p>No events set yet.</p>
       ) : (
-        <>
+      <>
+      
         <ul className="event-list">
             {events.map((event) => {
               const toMidnight = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -128,74 +138,76 @@ export default function EventSpace() {
         }
 
 
-              return (
-                <li className="event-card" key={event.id} style={{ marginBottom: "20px" }}>
-       
-                  <strong>{event.title}</strong> – {event.startDate}
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(event.id)}
-                    style={{ background: none, color: "black" }}
-                  >
-                    X
-                  </button>
-                  <br />
-                  {event.description}
-                  <br />
-                  {status}
-                  <br />
-
-                  
-                  <select
-                    value={eventModes[event.id] || "days"}
-                    onChange={(e) => handleModeChange(event.id, e.target.value)}
-                  >
-                    <option value="days">Days Only</option>
-                    <option value="months">Months + Days</option>
-                  </select>
-
-                  
-
-                  {/* Show/Hide Images Button */}
-                  {event.imageUrls.length > 0 && (
-                    <button
-                      onClick={() => setShowImagesId(
-                        showImagesId === event.id ? null : event.id
-                      )}
-                    >
-                      {showImagesId === event.id ? "Hide Pictures" : "Show Pictures"}
-                    </button>
-                  )}
-
-                  {/* Display all images if toggled */}
-                  {showImagesId === event.id && (
-                    <div className="image-gallery" style={{ display: "flex", gap: "5px", marginTop: "10px", flexWrap: "wrap" }}>
-                      {event.imageUrls.map((url, idx) => (
-                        <img
-                          key={idx}
-                          src={url}
-                          alt={`Event ${idx + 1}`}
-                          onClick={() => setFullscreenImage(url)}
-
-                          style={{ width: "120px", borderRadius: "5px" }} />
-                      ))}
-                    </div>
-                  )}
-
-                  <br />
-                  <button
-                    onClick={() => {
-                      setEditingEvent(event);
-                      setIsModalOpen(true);
-                    } }
-                  >
-                    Edit
-                  </button>
+        return (
+          <li className="event-card" key={event.id} style={{ marginBottom: "20px" }}>
   
-                </li>
-              );
-            })}
-          </ul>
+            <strong>{event.title}</strong> – {event.startDate}
+            <button
+              className="delete-btn"
+              onClick={() => handleDelete(event.id)}
+              style={{ background: none, color: "black" }}
+            >
+            <X className="w-6 h-6 text-gray-600 hover:text-red-500" />
+
+            </button>
+            <br />
+            {event.description}
+            <br />
+            {status}
+            <br />
+      
+            <button
+              onClick={() =>
+                handleModeChange(
+                event.id,
+                eventModes[event.id] === "days" ? "months" : "days"
+                )
+              }
+              className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+            >
+              {eventModes[event.id] === "days" ? "Days Only" : "Months + Days"}
+            </button>
+            
+            {/* Show/Hide Images Button */}
+            {event.imageUrls.length > 0 && (
+              <button
+                onClick={() => setShowImagesId(
+                  showImagesId === event.id ? null : event.id
+                )}
+              >
+                {showImagesId === event.id ? "Hide Pictures" : "Show Pictures"}
+              </button>
+            )}
+
+            {/* Display all images if toggled */}
+            {showImagesId === event.id && (
+              <div className="image-gallery" style={{ display: "flex", gap: "5px", marginTop: "10px", flexWrap: "wrap" }}>
+                {event.imageUrls.map((url, idx) => (
+                  <img
+                    key={idx}
+                    src={url}
+                    alt={`Event ${idx + 1}`}
+                    onClick={() => setFullscreenImage(url)}
+
+                    style={{ width: "120px", borderRadius: "5px" }} />
+                ))}
+              </div>
+            )}
+
+            <br />
+            <button
+              onClick={() => {
+                setEditingEvent(event);
+                setIsModalOpen(true);
+              } }
+            >
+              Edit
+            </button>
+
+          </li>
+        );
+      })}
+    </ul>
 
     {fullscreenImage && (
   <div className="fullscreen-overlay">
@@ -204,7 +216,7 @@ export default function EventSpace() {
       className="close-btn"
       onClick={() => setFullscreenImage(null)}
     >
-      ✕
+      <X className="w-6 h-6 text-gray-600 hover:text-red-500" />
     </button>
 
     {/* Left arrow */}
@@ -220,7 +232,7 @@ export default function EventSpace() {
         setFullscreenImage(urls[prevIndex]);
       }}
     >
-      ◀
+      <ChevronLeft className="w-6 h-6" />
     </button>
 
     {/* The image itself */}
@@ -239,12 +251,13 @@ export default function EventSpace() {
         setFullscreenImage(urls[nextIndex]);
       }}
     >
-      ▶
+      <ChevronRight className="w-6 h-6" />
+
     </button>
   </div>
-)}
+  )}
 
-          </>
+  </>
       )}
     </div>
 

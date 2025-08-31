@@ -1,5 +1,25 @@
 /* EventSpace.css */
 
+.add-event-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #2563eb; /* blue-600 */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 9999px; /* makes it pill/round */
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s ease-in-out;
+}
+
+.add-event-btn:hover {
+  background: #1e40af; /* darker blue */
+}
+
+
 .event-space {
   max-width: 900px;
   margin: 2rem auto;
