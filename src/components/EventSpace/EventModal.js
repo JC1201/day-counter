@@ -17,6 +17,7 @@ export default function EventModal({
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [fullscreenImage, setFullscreenImage] = useState(null);
   const [location, setLocation] = useState("");
   const [coordinates, setCoordinates] = useState(null);
   const autocompleteRef = useRef(null);
@@ -176,7 +177,11 @@ export default function EventModal({
       {imagePreviews.length > 0 && (
         <div className="image-preview-container">
           {imagePreviews.map((src, idx) => (
-            <img key={idx} src={src} alt={`Preview ${idx + 1}`} />
+            <img 
+            key={idx} src={src} alt={`Preview ${idx + 1}`}
+            onClick={() => setFullscreenImage(src)}
+            className="preview-img"
+            />
           ))}
         </div>
       )}
@@ -189,6 +194,14 @@ export default function EventModal({
           Cancel
         </button>
       </div>
+
+      {/* //fullscreen function */}
+      {fullscreenImage && (
+      <div className="fullscreen-modal" onClick={() => setFullscreenImage(null)}>
+        <img src={fullscreenImage} alt="Fullscreen Preview" className="fullscreen-img" />
+      </div>
+      )}
+
     </div>
   );
 }

@@ -181,5 +181,24 @@
 .arrow-btn.right {
   right: 10px;
 }
+  
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
 
+.nav-btn.left { 
 
+  left: 10px; 
+}
+
+.nav-btn.right { 
+  right: 10px; 
+}

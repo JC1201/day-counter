@@ -2,29 +2,33 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import EventModal from "./EventModal";
-import "./EventSpace.css"
-import { none } from "@cloudinary/url-gen/qualifiers/progressive";
-import { ChevronLeft, ChevronRight, X} from "lucide-react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./EventSpace.css";
+import { X, Pencil, Eye, Camera, LucideArrowLeft, LucideArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
-
+import {
+  SwipeableList,
+  SwipeableListItem,
+  TrailingActions,
+  SwipeAction,
+  Type as ListType,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
 
 export default function EventSpace() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-   // track which event’s images to show
-  const [showImagesId, setShowImagesId] = useState(null);
-  const [fullscreenImage, setFullscreenImage] = useState(null); 
-  // day viewing mode
-  const [eventModes, setEventModes] = useState(); 
+  const [eventModes, setEventModes] = useState({});
+  const [currentImageIndex, setCurrentImageIndex] = useState(null);
+  const [currentEventImages, setCurrentEventImages] = useState([]); // 👈 store which event’s images we’re viewing
 
   const fetchEvents = async () => {
     const snapshot = await getDocs(collection(db, "events"));
     const eventsList = snapshot.docs.map((docSnap) => ({
       id: docSnap.id,
       ...docSnap.data(),
-      imageUrls: docSnap.data().imageUrls || [], // ensure it's always an array
+      imageUrls: docSnap.data().imageUrls || [],
     }));
     setEvents(eventsList);
   };
@@ -45,44 +49,42 @@ export default function EventSpace() {
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this event?");
-    if (!confirmDelete) return;
 
+    if (!confirmDelete) {
+      
+      return;
+    }
     try {
       await deleteDoc(doc(db, "events", id));
       fetchEvents();
     } catch (error) {
       console.error("Error deleting event:", error);
-      alert("Failed to delete event. Please try again.");
     }
   };
 
   const handleModeChange = (eventId, mode) => {
-  setEventModes((prev) => ({
-    ...prev,
-    [eventId]: mode
-  }));
-
-  localStorage.setItem("eventModes", JSON.stringify({
-    ...eventModes,
-    [eventId]: mode
-  }));
+    setEventModes((prev) => ({
+      ...prev,
+      [eventId]: mode,
+    }));
+    localStorage.setItem(
+      "eventModes",
+      JSON.stringify({
+        ...eventModes,
+        [eventId]: mode,
+      })
+    );
   };
 
-  // Load saved preferences
   useEffect(() => {
     const saved = localStorage.getItem("eventModes");
-    if (saved) {
-      setEventModes(JSON.parse(saved));
-    }
+    if (saved) setEventModes(JSON.parse(saved));
   }, []);
 
   return (
     <div className="event-space">
-
       {!isModalOpen && !editingEvent && (
-        <button 
-        className="add-event-btn" 
-        onClick={() => setIsModalOpen(true)}>
+        <button className="add-event-btn" onClick={() => setIsModalOpen(true)}>
           Add Event
         </button>
       )}
@@ -100,167 +102,132 @@ export default function EventSpace() {
       {events.length === 0 ? (
         <p>No events set yet.</p>
       ) : (
-      <>
-      
-        <ul className="event-list">
-            {events.map((event) => {
-              const toMidnight = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        <SwipeableList type={ListType.IOS}>
+          {events.map((event) => {
+            const today = new Date();
+            const startDate = new Date(event.startDate);
+            const diffDays = Math.floor(
+              (startDate - today) / (1000 * 60 * 60 * 24)
+            );
 
-              const today = toMidnight(new Date());
-              const startDate = toMidnight(new Date(event.startDate));
+            const modes = eventModes?.[event.id] || "days";
+            let status;
+            if (diffDays > 0) {
+              status =
+                modes === "days"
+                  ? `Arrive in ${diffDays} days`
+                  : `Arrive in ${Math.floor(diffDays / 30)} months ${diffDays % 30} days`;
+            } else if (diffDays < 0) {
+              const passed = Math.abs(diffDays);
+              status =
+                modes === "days"
+                  ? `${passed} days passed`
+                  : `${Math.floor(passed / 30)} months ${passed % 30} days passed`;
+            } else {
+              status = "Today";
+            }
 
-              const diffDays = Math.floor(
-                (startDate - today) / (1000 * 60 * 60 * 24)
-              );
-        
-        let status;
-        const modes = eventModes?.[event.id] || "days"; // <-- key fix
+            const trailingActions = () => (
+              <TrailingActions>
+                <SwipeAction
+                  onClick={() =>
+                    handleModeChange(event.id, modes === "days" ? "months" : "days")
+                  }
+                >
+                  <Eye className="w-5 h-5 text-purple-500" /> View Mode
+                </SwipeAction>
 
-        if (diffDays > 0) {
-          if (modes === "days") {
-            status = `Arrive in ${diffDays} day${diffDays === 1 ? "" : "s"}`;
-          } else {
-            const months = Math.floor(diffDays / 30); // approx month
-            const days = diffDays % 30;
-            status = `Arrive in ${months > 0 ? months + " month" + (months > 1 ? "s " : " ") : ""}${days} day${days !== 1 ? "s" : ""}`;
-          }
-        } else if (diffDays < 0) {
-          const passed = Math.abs(diffDays);
-          if (modes === "days") {
-            status = `${passed} day${passed === 1 ? "" : "s"} passed`;
-          } else {
-            const months = Math.floor(passed / 30);
-            const days = passed % 30;
-            status = `${months > 0 ? months + " month" + (months > 1 ? "s " : " ") : ""}${days} day${days !== 1 ? "s" : ""} passed`;
-          }
-        } else {
-          status = "Today";
-        }
+                <SwipeAction
+                  onClick={() => {
+                    setEditingEvent(event);
+                    setIsModalOpen(true);
+                  }}
+                >
+                  <Pencil className="w-5 h-5 text-blue-500" />
+                </SwipeAction>
 
+                <SwipeAction
+                
+                    className="view-all-btn"
+                    onClick={() => {
+                      setCurrentEventImages(event.imageUrls); // 👈 save this event’s images
+                      setCurrentImageIndex(0)
+                      ; // 👈 start from first
+                    }}
+                  >
+                    <Camera className="w-5 h-5 text-blue-500" />
+                  
+                </SwipeAction> 
 
-        return (
-          <li className="event-card" key={event.id} style={{ marginBottom: "20px" }}>
-  
-            <strong>{event.title}</strong> – {event.startDate}
-            <button
-              className="delete-btn"
-              onClick={() => handleDelete(event.id)}
-              style={{ background: none, color: "black" }}
-            >
-            <X className="w-6 h-6 text-gray-600 hover:text-red-500" />
+                <SwipeAction 
+                  // destructive={true} 
+                  onClick={() => handleDelete(event.id)}
+                    
+                >
+                  <X className="w-5 h-5 text-red-500" />
+                </SwipeAction>
+              </TrailingActions>
+            );
 
-            </button>
-            <br />
-            {event.description}
-            <br />
-            {status}
-            <br />
-      
-            <button
-              onClick={() =>
-                handleModeChange(
-                event.id,
-                eventModes[event.id] === "days" ? "months" : "days"
-                )
-              }
-              className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
-            >
-              {eventModes[event.id] === "days" ? "Days Only" : "Months + Days"}
-            </button>
-            
-            {/* Show/Hide Images Button */}
-            {event.imageUrls.length > 0 && (
-              <button
-                onClick={() => setShowImagesId(
-                  showImagesId === event.id ? null : event.id
-                )}
-              >
-                {showImagesId === event.id ? "Hide Pictures" : "Show Pictures"}
-              </button>
-            )}
+            return (
+              <SwipeableListItem key={event.id} trailingActions={trailingActions()}>
+                <Link
+                  to={`/event/${event.id}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <li className="event-card" style={{ marginBottom: "20px" }}>
+                    <strong>{event.title}</strong> – {event.startDate}
+                    <br />
+                    {event.description}
+                    <br />
+                    {status}
+                  </li>
+                </Link>
+              </SwipeableListItem>
+            );
+          })}
+        </SwipeableList>
+      )}
 
-            {/* Display all images if toggled */}
-            {showImagesId === event.id && (
-              <div className="image-gallery" style={{ display: "flex", gap: "5px", marginTop: "10px", flexWrap: "wrap" }}>
-                {event.imageUrls.map((url, idx) => (
-                  <img
-                    key={idx}
-                    src={url}
-                    alt={`Event ${idx + 1}`}
-                    onClick={() => setFullscreenImage(url)}
+      {/* Fullscreen Image Viewer */}
+      {currentImageIndex !== null && currentEventImages.length > 0 && (
+        <div className="fullscreen-modal">
+          
+          <button className="close-btn" onClick={() => setCurrentImageIndex(null)}>
+            <X className="w-5 h-5" />
+          </button>
 
-                    style={{ width: "120px", borderRadius: "5px" }} />
-                ))}
-              </div>
-            )}
+          <button
+            className="nav-btn left"
+            onClick={() =>
+              setCurrentImageIndex((prev) =>
+                prev > 0 ? prev - 1 : currentEventImages.length - 1
+              )
+            }
+          >
+            <LucideArrowLeft className="w-5 h-5" />
 
-            <br />
-            <button
-              onClick={() => {
-                setEditingEvent(event);
-                setIsModalOpen(true);
-              } }
-            >
-              Edit
-            </button>
+          </button>
 
-          </li>
-        );
-      })}
-    </ul>
+          <img
+            src={currentEventImages[currentImageIndex]}
+            alt={`Fullscreen ${currentImageIndex + 1}`}
+            className="fullscreen-img"
+          />
 
-    {fullscreenImage && (
-  <div className="fullscreen-overlay">
-    {/* Close button */}
-    <button
-      className="close-btn"
-      onClick={() => setFullscreenImage(null)}
-    >
-      <X className="w-6 h-6 text-gray-600 hover:text-red-500" />
-    </button>
+          <button
+            className="nav-btn right"
+            onClick={() =>
+              setCurrentImageIndex((prev) =>
+                (prev + 1) % currentEventImages.length
+              )
+            }
+          >
+          <LucideArrowRight className="w-5 h-5" />
 
-    {/* Left arrow */}
-    <button
-      className="arrow-btn left"
-      onClick={() => {
-        const currentIndex = events
-          .find((e) => e.id === showImagesId)
-          .imageUrls.indexOf(fullscreenImage);
-
-        const urls = events.find((e) => e.id === showImagesId).imageUrls;
-        const prevIndex = (currentIndex - 1 + urls.length) % urls.length;
-        setFullscreenImage(urls[prevIndex]);
-      }}
-    >
-      <ChevronLeft className="w-6 h-6" />
-    </button>
-
-    {/* The image itself */}
-    <img src={fullscreenImage} alt="fullscreen" />
-
-    {/* Right arrow */}
-    <button
-      className="arrow-btn right"
-      onClick={() => {
-        const currentIndex = events
-          .find((e) => e.id === showImagesId)
-          .imageUrls.indexOf(fullscreenImage);
-
-        const urls = events.find((e) => e.id === showImagesId).imageUrls;
-        const nextIndex = (currentIndex + 1) % urls.length;
-        setFullscreenImage(urls[nextIndex]);
-      }}
-    >
-      <ChevronRight className="w-6 h-6" />
-
-    </button>
-  </div>
-  )}
-
-  </>
+          </button>
+        </div>
       )}
     </div>
-
-    
   );
 }
