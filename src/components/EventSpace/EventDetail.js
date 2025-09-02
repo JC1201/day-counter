@@ -29,7 +29,8 @@ export default function EventDetail() {
     fetchEvent();
   }, [id]);
 
-  if (!event) return <p>Loading...</p>;
+  if (!event) return       <p>Loading</p>
+;
 
   return (
     <div 
@@ -39,13 +40,13 @@ export default function EventDetail() {
         backgroundImage: `url(${event.imageUrls?.[0] || ""})`, 
         backgroundSize: "cover", 
         backgroundPosition: "center", 
-        color: "white", 
+        color: "black", 
         padding: "20px" 
       }}
     >
         
         {/* Back button */}
-        <Link to="/" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>
+        <Link to="/" style={{ color: "black", textDecoration: "none", fontWeight: "bold" }}>
         ⬅ 
         </Link>
 

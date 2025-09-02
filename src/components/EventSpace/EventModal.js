@@ -102,8 +102,13 @@ export default function EventModal({
   };
 
   const handleClose = () => {
+    
     setIsOpen(false);
     setEditingEvent(null);
+          setTitle("");
+      setStartDate("");
+      setDescription("");
+;
     setImages([]);
     setImagePreviews([]);
   };
@@ -133,7 +138,7 @@ export default function EventModal({
         onChange={(e) => setDescription(e.target.value)}
       />
 
-            {/* 🔹 Google Maps Location Input */}
+      {/* 🔹 Google Maps Location Input */}
       <LoadScript googleMapsApiKey="AIzaSyAFo1i9gO7otZlFIY7OKP7oeovOF9FybM0" libraries={["places"]}>
         <Autocomplete
           onLoad={(ref) => (autocompleteRef.current = ref)}

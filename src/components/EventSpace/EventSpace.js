@@ -3,9 +3,9 @@ import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firesto
 import { db } from "../../firebase";
 import EventModal from "./EventModal";
 import "./EventSpace.css";
-import { X, Pencil, Eye, Camera, LucideArrowLeft, LucideArrowRight } from "lucide-react";
+import { X, Pencil, Eye, Camera, ChevronRight, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import "react-swipeable-list/dist/styles.css";
 import {
   SwipeableList,
   SwipeableListItem,
@@ -13,7 +13,6 @@ import {
   SwipeAction,
   Type as ListType,
 } from "react-swipeable-list";
-import "react-swipeable-list/dist/styles.css";
 
 export default function EventSpace() {
   const [events, setEvents] = useState([]);
@@ -128,13 +127,13 @@ export default function EventSpace() {
             }
 
             const trailingActions = () => (
-              <TrailingActions>
+              <TrailingActions className = "swipe-list">
                 <SwipeAction
                   onClick={() =>
                     handleModeChange(event.id, modes === "days" ? "months" : "days")
                   }
                 >
-                  <Eye className="w-5 h-5 text-purple-500" /> View Mode
+                  <Eye className="w-5 h-5 text-purple-500" />
                 </SwipeAction>
 
                 <SwipeAction
@@ -150,9 +149,9 @@ export default function EventSpace() {
                 
                     className="view-all-btn"
                     onClick={() => {
-                      setCurrentEventImages(event.imageUrls); // 👈 save this event’s images
+                      setCurrentEventImages(event.imageUrls);
                       setCurrentImageIndex(0)
-                      ; // 👈 start from first
+                      ; 
                     }}
                   >
                     <Camera className="w-5 h-5 text-blue-500" />
@@ -175,7 +174,7 @@ export default function EventSpace() {
                   to={`/event/${event.id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <li className="event-card" style={{ marginBottom: "20px" }}>
+                  <li className="event-card">
                     <strong>{event.title}</strong> – {event.startDate}
                     <br />
                     {event.description}
@@ -205,7 +204,7 @@ export default function EventSpace() {
               )
             }
           >
-            <LucideArrowLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" />
 
           </button>
 
@@ -223,7 +222,7 @@ export default function EventSpace() {
               )
             }
           >
-          <LucideArrowRight className="w-5 h-5" />
+          <ChevronRight className="w-5 h-5" />
 
           </button>
         </div>

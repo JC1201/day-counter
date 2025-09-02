@@ -12,13 +12,12 @@
   font-size: 16px;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: background 0.2s ease-in-out;
+  /* transition: background 0.2s ease-in-out; */
 }
 
 .add-event-btn:hover {
   background: #1e40af; /* darker blue */
 }
-
 
 .event-space {
   max-width: 900px;
@@ -43,48 +42,20 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: background 0.2s ease;
 }
 
-.event-space button:hover {
-  background: #2980b9;
-}
 
-.event-space button[style*="red"] {
-  background: #e74c3c !important;
-}
-
-.event-space button[style*="red"]:hover {
-  background: #c0392b !important;
-}
-
-/* Event List */
-.event-list {
-  list-style: none;
-  padding: 0;
-  /* margin: 0; */
-  width: 100%;
-  left: 0;
-  right: 0;
-}
 
 .event-card {
+  list-style: none;
   background: #fff;
-  margin: 1.2rem auto;   /* center it instead of pushing out */
+  margin: 0.15rem auto;   /* center it instead of pushing out */
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  margin-bottom: 1.5rem;
-  transition: transform 0.2s ease;
 
-  width: 100%;          /* take full width of parent */
-  max-width: 850px;     /* keep inside event-space */
+  width: 100vw;
   box-sizing: border-box; /* include padding/margin in width */
-  padding: 1rem;        /* optional: give breathing room */
-}
-
-
-.event-card:hover {
-  transform: translateY(-3px);
+  padding: 1rem;   
 }
 
 .event-card strong {
@@ -92,43 +63,8 @@
   color: #34495e;
 }
 
-.event-status {
-  font-weight: 500;
-  color: #16a085;
-  margin-top: 0.3rem;
-  display: inline-block;
-}
-
-.delete-btn {
-
-  position: absolute;
-  right: 10px;
-  background: none !important; 
-  color: black;
-  border: none;
-  margin: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Image Gallery */
-.image-gallery {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 0.8rem;
-}
-
-.image-gallery img {
-  width: 120px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 10px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.image-gallery img:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.swipe-list {
+  align-items: center;
 }
 
 .fullscreen-overlay {
@@ -174,14 +110,6 @@
   padding: 10px;
 }
 
-.arrow-btn.left {
-  left: 10px;
-}
-
-.arrow-btn.right {
-  right: 10px;
-}
-  
 .nav-btn {
   position: absolute;
   top: 50%;
@@ -189,7 +117,8 @@
   font-size: 3rem;
   background: none;
   border: none;
-  color: white;
+  color: white !important;
+  background: none !important;
   cursor: pointer;
   user-select: none;
 }
@@ -201,4 +130,35 @@
 
 .nav-btn.right { 
   right: 10px; 
+}
+
+/* Make the swipeable list nicer */
+.swipe-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Each swipe action button */
+.swipe-list .swipe-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 0 4px;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Hover effect */
+.swipe-list .swipe-action:hover {
+  background: #e8e8e8;
+}
+
+/* Make icons bigger */
+.swipe-list svg {
+  width: 22px;
+  height: 22px;
 }
