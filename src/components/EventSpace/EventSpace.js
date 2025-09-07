@@ -102,6 +102,7 @@ export default function EventSpace() {
         <p>No events set yet.</p>
       ) : (
         <SwipeableList type={ListType.IOS}>
+
           {events.map((event) => {
             const today = new Date();
             const startDate = new Date(event.startDate);
@@ -127,11 +128,12 @@ export default function EventSpace() {
             }
 
             const trailingActions = () => (
-              <TrailingActions className = "swipe-list">
+              <TrailingActions>
                 <SwipeAction
                   onClick={() =>
-                    handleModeChange(event.id, modes === "days" ? "months" : "days")
+                  handleModeChange(event.id, modes === "days" ? "months" : "days")
                   }
+                  className = "swipe-action view"
                 >
                   <Eye className="w-5 h-5 text-purple-500" />
                 </SwipeAction>
@@ -141,19 +143,18 @@ export default function EventSpace() {
                     setEditingEvent(event);
                     setIsModalOpen(true);
                   }}
+                  className = "swipe-action edit"
                 >
                   <Pencil className="w-5 h-5 text-blue-500" />
                 </SwipeAction>
 
                 <SwipeAction
-                
-                    className="view-all-btn"
                     onClick={() => {
-                      setCurrentEventImages(event.imageUrls);
-                      setCurrentImageIndex(0)
-                      ; 
+                    setCurrentEventImages(event.imageUrls);
+                    setCurrentImageIndex(0); 
                     }}
-                  >
+                    className = "swipe-action img"
+                >
                     <Camera className="w-5 h-5 text-blue-500" />
                   
                 </SwipeAction> 
@@ -161,26 +162,33 @@ export default function EventSpace() {
                 <SwipeAction 
                   // destructive={true} 
                   onClick={() => handleDelete(event.id)}
-                    
+                  className = "swipe-action close"
+
                 >
-                  <X className="w-5 h-5 text-red-500" />
+                  <X />
                 </SwipeAction>
               </TrailingActions>
             );
 
             return (
-              <SwipeableListItem key={event.id} trailingActions={trailingActions()}>
+              <SwipeableListItem type={ListType.ANDROID} key={event.id} trailingActions={trailingActions()}>
                 <Link
                   to={`/event/${event.id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <li className="event-card">
-                    <strong>{event.title}</strong> – {event.startDate}
-                    <br />
-                    {event.description}
-                    <br />
+                <li className="event-card">
+                  <div className="event-header">
+                    <strong className="event-title">{event.title} - </strong>
+                    <span className="event-date">{event.startDate}</span>
+                  </div>
+
+                  <p className="event-description">{event.description}</p>
+
+                  <span className="event-status">
                     {status}
-                  </li>
+                  </span>
+                </li>
+
                 </Link>
               </SwipeableListItem>
             );

@@ -33,26 +33,14 @@
   color: #2c3e50;
 }
 
-.event-space button {
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  margin: 0.3rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-
-
 .event-card {
   list-style: none;
   background: #fff;
+  background: transparent;
   margin: 0.15rem auto;   /* center it instead of pushing out */
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-
+  /* position: relative; */
   width: 100vw;
   box-sizing: border-box; /* include padding/margin in width */
   padding: 1rem;   
@@ -63,8 +51,30 @@
   color: #34495e;
 }
 
-.swipe-list {
-  align-items: center;
+
+.event-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b; /* slate-800 */
+}
+
+.event-date {
+  font-size: 0.85rem;
+  color: #64748b; /* slate-500 */
+}
+
+.event-description {
+  margin: 0.25rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.event-status {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  /* padding: 0.25rem 0.6rem; */
+  border-radius: 6px;
 }
 
 .fullscreen-overlay {
@@ -132,33 +142,45 @@
   right: 10px; 
 }
 
-/* Make the swipeable list nicer */
-.swipe-list {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+/* Base style for all swipe actions */
+.swipe-action {
+  display: flex !important;
+  align-items: center !important;
+  flex: 0 0 55px !important; /* stop flexbox from shrinking */
 
-/* Each swipe action button */
-.swipe-list .swipe-action {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  background: #f8f8f8;
-  border-radius: 8px;
-  padding: 8px;
-  margin: 0 4px;
-  transition: background 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  width: 100px !important; 
+  height: 100%;     
+  /* color: white;       */
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.3s;
+  z-index: 1;
 }
 
-/* Hover effect */
-.swipe-list .swipe-action:hover {
-  background: #e8e8e8;
+/* Specific styles */
+.swipe-action.view {
+  background: #3498db; /* blue */
 }
 
-/* Make icons bigger */
-.swipe-list svg {
+.swipe-action.edit {
+  background: #f1c40f; /* yellow */
+}
+
+.swipe-action.img {
+  background: #2ecc71; /* green */
+}
+
+.swipe-action.close {
+  background: red;
+}
+
+.swipeable-list-item_content.swipeable-list-item_content--return {
+  background: transparent !important;
+}
+
+svg {
   width: 22px;
-  height: 22px;
+  height: 24px;
 }
+
