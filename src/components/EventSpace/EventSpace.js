@@ -3,7 +3,7 @@ import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firesto
 import { db } from "../../firebase";
 import EventModal from "./EventModal";
 import "./EventSpace.css";
-import { X, Pencil, Eye, Camera, ChevronRight, ChevronLeft } from "lucide-react";
+import { X, Pencil, Calendar, Camera, ChevronRight, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import "react-swipeable-list/dist/styles.css";
 import {
@@ -135,7 +135,7 @@ export default function EventSpace() {
                   }
                   className = "swipe-action view"
                 >
-                  <Eye className="w-5 h-5 text-purple-500" />
+                  <Calendar/>
                 </SwipeAction>
 
                 <SwipeAction
@@ -145,17 +145,17 @@ export default function EventSpace() {
                   }}
                   className = "swipe-action edit"
                 >
-                  <Pencil className="w-5 h-5 text-blue-500" />
+                  <Pencil/>
                 </SwipeAction>
 
                 <SwipeAction
-                    onClick={() => {
-                    setCurrentEventImages(event.imageUrls);
-                    setCurrentImageIndex(0); 
-                    }}
-                    className = "swipe-action img"
+                  onClick={() => {
+                  setCurrentEventImages(event.imageUrls);
+                  setCurrentImageIndex(0); 
+                  }}
+                  className = "swipe-action img"
                 >
-                    <Camera className="w-5 h-5 text-blue-500" />
+                  <Camera/>
                   
                 </SwipeAction> 
 
@@ -178,13 +178,17 @@ export default function EventSpace() {
                 >
                 <li className="event-card">
                   <div className="event-header">
-                    <strong className="event-title">{event.title} - </strong>
+                    <strong className="event-title">{event.title} </strong>
                     <span className="event-date">{event.startDate}</span>
                   </div>
 
-                  <p className="event-description">{event.description}</p>
+                  {/* <p className="event-description">{event.description}</p> */}
 
-                  <span className="event-status">
+                  <span 
+                  className={`event-status ${ diffDays > 0 ? 
+                  "upcoming" : diffDays < 0 ? "passed" : "today"
+                  }`}
+                  >
                     {status}
                   </span>
                 </li>
