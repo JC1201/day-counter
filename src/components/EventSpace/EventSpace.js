@@ -103,30 +103,43 @@ export default function EventSpace() {
       ) : (
         <SwipeableList type={ListType.IOS}>
 
-          {events.map((event) => {
-            const today = new Date();
-            const startDate = new Date(event.startDate);
-            const diffDays = Math.floor(
-              (startDate - today) / (1000 * 60 * 60 * 24)
-            );
+      {events.map((event) => {
+        const today = new Date();
+        const startDate = new Date(event.startDate);
 
-            const modes = eventModes?.[event.id] || "days";
-            let status;
-            if (diffDays > 0) {
-              status =
-                modes === "days"
-                  ? `Arrive in ${diffDays} days`
-                  : `Arrive in ${Math.floor(diffDays / 30)} months ${diffDays % 30} days`;
-            } else if (diffDays < 0) {
-              const passed = Math.abs(diffDays);
-              status =
-                modes === "days"
-                  ? `${passed} days passed`
-                  : `${Math.floor(passed / 30)} months ${passed % 30} days passed`;
-            } else {
-              status = "Today";
-            }
+        // normalize both dates to midnight
+        today.setHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
 
+        const diffDays = Math.round(
+          (startDate - today) / (1000 * 60 * 60 * 24)
+        );
+
+        const modes = eventModes?.[event.id] || "days";
+        let status;
+
+        if (diffDays > 0) {
+          if (diffDays === 1) {
+            status = "Tomorrow";
+          } else {
+            status =
+              modes === "days"
+                ? `Arrive in ${diffDays} days`
+                : `Arrive in ${Math.floor(diffDays / 30)} months ${diffDays % 30} days`;
+          }
+        } else if (diffDays < 0) {
+          const passed = Math.abs(diffDays);
+          if (passed === 1) {
+            status = "Yesterday";
+          } else {
+            status =
+              modes === "days"
+                ? `${passed} days passed`
+                : `${Math.floor(passed / 30)} months ${passed % 30} days passed`;
+          }
+        } else {
+          status = "Today";
+        }
             const trailingActions = () => (
               <TrailingActions>
                 <SwipeAction

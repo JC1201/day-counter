@@ -37,13 +37,13 @@
   list-style: none;
   background: #fff;
   background: transparent;
-  margin: 0.15rem auto;   /* center it instead of pushing out */
-  border-radius: 12px;
+  margin: 0 1px 1px;   /* center it instead of pushing out */
+  border-radius: 5px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   /* position: relative; */
   width: 100vw;
   box-sizing: border-box; /* include padding/margin in width */
-  padding: 1rem;   
+  padding: 1.1rem;   
 }
 
 .event-card strong {
@@ -51,16 +51,7 @@
   color: #34495e;
 }
 
-.event-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 0 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  list-style: none;
-  height: 100%;
-}
+
 
 .event-card:hover {
   transform: translateY(-2px);
@@ -72,7 +63,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
 }
 
 .event-title {
@@ -220,8 +211,4 @@
   background: transparent !important;
 }
 
-svg {
-  width: 22px;
-  height: 24px;
-}
 

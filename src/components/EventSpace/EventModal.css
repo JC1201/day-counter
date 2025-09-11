@@ -43,13 +43,40 @@
   /* margin-bottom: 1rem; */
 }
 
-.image-preview-container img {
-  width: 100px;
+.preview-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.preview-img {
+  width: 110px;
   height: 100px;
   object-fit: cover;
+  margin: 5px;
   border-radius: 8px;
+  cursor: pointer;
   border: 1px solid #ddd;
 }
+
+.delete-img-btn {
+  position: absolute;
+  top: 10px;
+  right: 8px;              /* better alignment than 15px */
+  background: rgba(0, 0, 0, 0.6);
+  color: white;            /* icon more visible */
+  border: none;
+  border-radius: 50%;      /* make it circular */
+  width: 18px;
+  height: 18px;
+  display: flex;           /* center the icon */
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;              /* remove default button padding */
+  line-height: 1;          /* prevents extra vertical spacing */
+}
+
 
 /* Fullscreen overlay */
 .fullscreen-modal {

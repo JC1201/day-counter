@@ -3,13 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-// import {
-//   SwipeableList,
-//   SwipeableListItem,
-//   SwipeAction,
-//   TrailingActions,
-//   LeadingActions
-// } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
 // import { X, Pencil } from "lucide-react";
 
