@@ -30,7 +30,6 @@ export default function EventModal({
   const functions = getFunctions();
   const deleteImageFn = httpsCallable(functions, "deleteImage");
 
-
   useEffect(() => {
     if (editingEvent) {
       setTitle(editingEvent.title || "");
@@ -132,65 +131,65 @@ export default function EventModal({
   };
 
   // helpers inside your EventModal component (place near top)
-const isBlobUrl = (u) => typeof u === "string" && u.startsWith("blob:");
-const extractPublicIdFromUrl = (url) => {
-  if (!url) return null;
-  // tries to extract public_id from typical Cloudinary secure_url pattern:
-  // https://res.cloudinary.com/<cloud>/image/upload/v<ver>/<public_id>.<ext>
-  const m = url.match(/\/upload\/(?:v\d+\/)?(.+?)\.(?:jpg|jpeg|png|gif|webp|svg|bmp|tiff|heic)$/i);
-  return m ? m[1] : null;
-};
+  const isBlobUrl = (u) => typeof u === "string" && u.startsWith("blob:");
+  const extractPublicIdFromUrl = (url) => {
+    if (!url) return null;
+    // tries to extract public_id from typical Cloudinary secure_url pattern:
+    // https://res.cloudinary.com/<cloud>/image/upload/v<ver>/<public_id>.<ext>
+    const m = url.match(/\/upload\/(?:v\d+\/)?(.+?)\.(?:jpg|jpeg|png|gif|webp|svg|bmp|tiff|heic)$/i);
+    return m ? m[1] : null;
+  };
 
-const handleDeleteImage = async (imgObj, idx) => {
-  try {
-    // 1) If this is a local, unsaved file (blob) -> remove locally only
-    if (!imgObj.publicId && isBlobUrl(imgObj.url)) {
+  const handleDeleteImage = async (imgObj, idx) => {
+    try {
+      // 1) If this is a local, unsaved file (blob) -> remove locally only
+      if (!imgObj.publicId && isBlobUrl(imgObj.url)) {
+        setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+        setImages((prev) => prev.filter((_, i) => i !== idx));
+        return;
+      }
+
+      // 2) Determine target publicId and url to match in Firestore
+      const targetUrl = imgObj.url || null;
+      const targetPublicId = imgObj.publicId || extractPublicIdFromUrl(targetUrl);
+
+      // 3) Call Cloud Function to delete from Cloudinary (if we have a publicId)
+      if (targetPublicId) {
+        const res = await deleteImageFn({ publicId: targetPublicId });
+        console.log("deleteImageFn result:", res.data ?? res);
+      } else {
+        console.warn("No publicId found; skipping Cloudinary deletion");
+      }
+
+      // 4) Update Firestore document (load -> filter -> overwrite)
+      if (editingEvent?.id) {
+        const eventRef = doc(db, "events", editingEvent.id);
+        const eventSnap = await getDoc(eventRef);
+        if (eventSnap.exists()) {
+          const currentImagesRaw = eventSnap.data().imageUrls || [];
+          // Normalize each stored item to {url, publicId}
+          const currentImages = currentImagesRaw.map((i) =>
+            typeof i === "string" ? { url: i, publicId: null } : i
+          );
+
+          // Keep images that DO NOT match by publicId OR url.
+          const updatedImages = currentImages.filter(
+            (i) => !( (targetPublicId && i.publicId === targetPublicId) || (targetUrl && i.url === targetUrl) )
+          );
+
+          await updateDoc(eventRef, { imageUrls: updatedImages });
+          console.log("Firestore updated imageUrls");
+        }
+      }
+
+      // 5) Finally update local UI state
       setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
       setImages((prev) => prev.filter((_, i) => i !== idx));
-      return;
+    } catch (err) {
+      console.error("Failed to delete image:", err);
+      alert("Failed to delete image. Check console & Cloud Functions logs.");
     }
-
-    // 2) Determine target publicId and url to match in Firestore
-    const targetUrl = imgObj.url || null;
-    const targetPublicId = imgObj.publicId || extractPublicIdFromUrl(targetUrl);
-
-    // 3) Call Cloud Function to delete from Cloudinary (if we have a publicId)
-    if (targetPublicId) {
-      const res = await deleteImageFn({ publicId: targetPublicId });
-      console.log("deleteImageFn result:", res.data ?? res);
-    } else {
-      console.warn("No publicId found; skipping Cloudinary deletion");
-    }
-
-    // 4) Update Firestore document (load -> filter -> overwrite)
-    if (editingEvent?.id) {
-      const eventRef = doc(db, "events", editingEvent.id);
-      const eventSnap = await getDoc(eventRef);
-      if (eventSnap.exists()) {
-        const currentImagesRaw = eventSnap.data().imageUrls || [];
-        // Normalize each stored item to {url, publicId}
-        const currentImages = currentImagesRaw.map((i) =>
-          typeof i === "string" ? { url: i, publicId: null } : i
-        );
-
-        // Keep images that DO NOT match by publicId OR url.
-        const updatedImages = currentImages.filter(
-          (i) => !( (targetPublicId && i.publicId === targetPublicId) || (targetUrl && i.url === targetUrl) )
-        );
-
-        await updateDoc(eventRef, { imageUrls: updatedImages });
-        console.log("Firestore updated imageUrls");
-      }
-    }
-
-    // 5) Finally update local UI state
-    setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
-    setImages((prev) => prev.filter((_, i) => i !== idx));
-  } catch (err) {
-    console.error("Failed to delete image:", err);
-    alert("Failed to delete image. Check console & Cloud Functions logs.");
-  }
-};
+  };
 
 
   if (!isOpen) return null;
