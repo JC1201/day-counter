@@ -25,38 +25,39 @@ export default function EventDetail() {
   if (!event) return       <p>Loading</p>
 ;
 
+  const imageUrls = (event.imageUrls || []).map((img) =>
+    typeof img === "string" ? img : img?.url || ""
+  );
+
   return (
-    <div 
-      className="event-detail" 
-      style={{ 
-        minHeight: "20%", 
-        backgroundImage: `url(${event.imageUrls?.[0] || ""})`, 
-        backgroundSize: "cover", 
-        backgroundPosition: "center", 
-        color: "black", 
-        padding: "20px" 
+    <div
+      className="event-detail"
+      style={{
+        minHeight: "20%",
+        color: "black",
+        padding: "20px"
       }}
     >
-        
+
         {/* Back button */}
         <Link to="/" style={{ color: "black", textDecoration: "none", fontWeight: "bold" }}>
-        ⬅ 
+        ⬅
         </Link>
 
         <h1>{event.title}</h1>
         <p>{event.startDate}</p>
         <p>{event.description}</p>
-      
-        {/* More decorations, gallery, countdown etc */}
-        {event.imageUrls?.length > 1 && (
 
-            <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-            {event.imageUrls.map((url, i) => (
-                <img 
-                key={i} 
-                src={url} 
-                alt={`Event ${i}`} 
-                style={{ width: "150px", borderRadius: "10px" }} 
+        {/* More decorations, gallery, countdown etc */}
+        {imageUrls.length > 0 && (
+
+            <div style={{ display: "flex", gap: "10px", marginTop: "20px", flexWrap: "wrap" }}>
+            {imageUrls.map((url, i) => (
+                <img
+                key={i}
+                src={url}
+                alt={`Event ${i}`}
+                style={{ width: "150px", borderRadius: "10px" }}
                 />
             ))}
             </div>

@@ -263,24 +263,15 @@ export default function EventModal({
         type="file"
         accept="image/*"
         multiple
-        onChange={async (e) => {
+        onChange={(e) => {
           const files = Array.from(e.target.files);
-          for (const file of files) {
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", "Events-image");
+          const newPreviews = files.map((file) => ({
+            url: URL.createObjectURL(file),
+            publicId: null,
+          }));
 
-            const res = await fetch(
-              "https://api.cloudinary.com/v1_1/dipwgoxiy/image/upload",
-              { method: "POST", body: formData }
-            );
-            const data = await res.json();
-
-            setImagePreviews((prev) => [
-              ...prev,
-              { url: data.secure_url, publicId: data.public_id }
-            ]);
-          }
+          setImagePreviews((prev) => [...prev, ...newPreviews]);
+          setImages((prev) => [...prev, ...files]);
           // clear input value so same file can be re-selected if needed
           e.target.value = "";
         }}

@@ -9,10 +9,14 @@
 
 const {setGlobalOptions} = require("firebase-functions");
 const {onRequest} = require("firebase-functions/https");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const functions = require("firebase-functions");
 const cors = require("cors")({ origin: true });
 const cloudinary = require("cloudinary").v2;
+
+const cloudinaryApiSecret = defineSecret("CLOUDINARY_API_SECRET");
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -34,25 +38,24 @@ setGlobalOptions({ maxInstances: 10 });
 //   response.send("Hello from Firebase!");
 // });
 
-cloudinary.config({
-  cloud_name: "dipwgoxiy",
-  api_key: "921174229873194",
-  api_secret: "JMIOA2-S2bKJAmgYGe7MgNcQoCk", // 🔒 keep secret
-});
-
 // Delete image function
-// Delete image function (httpsCallable)
-exports.deleteImage = functions.https.onCall(async (data, context) => {
+exports.deleteImage = onCall({ secrets: [cloudinaryApiSecret] }, async (request) => {
   try {
-    const { publicId } = data;
+    const { publicId } = request.data;
     if (!publicId) {
-      throw new functions.https.HttpsError("invalid-argument", "Missing publicId");
+      throw new HttpsError("invalid-argument", "Missing publicId");
     }
+
+    cloudinary.config({
+      cloud_name: "dipwgoxiy",
+      api_key: "921174229873194",
+      api_secret: cloudinaryApiSecret.value(),
+    });
 
     const result = await cloudinary.uploader.destroy(publicId);
     return { success: true, result };
   } catch (err) {
     console.error("Cloudinary deletion failed:", err);
-    throw new functions.https.HttpsError("internal", "Failed to delete image");
+    throw new HttpsError("internal", "Failed to delete image");
   }
 });

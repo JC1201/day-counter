@@ -163,8 +163,11 @@ export default function EventSpace() {
 
                 <SwipeAction
                   onClick={() => {
-                  setCurrentEventImages(event.imageUrls);
-                  setCurrentImageIndex(0); 
+                  const urls = (event.imageUrls || []).map((img) =>
+                    typeof img === "string" ? img : img?.url || ""
+                  );
+                  setCurrentEventImages(urls);
+                  setCurrentImageIndex(0);
                   }}
                   className = "swipe-action img"
                 >
