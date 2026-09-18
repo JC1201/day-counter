@@ -218,8 +218,8 @@ export default function EventSpace() {
 
       {/* Fullscreen Image Viewer */}
       {currentImageIndex !== null && currentEventImages.length > 0 && (
-        <div className="fullscreen-modal">
-          
+        <div className="fullscreen-overlay">
+
           <button className="close-btn" onClick={() => setCurrentImageIndex(null)}>
             <X className="w-5 h-5" />
           </button>
@@ -239,7 +239,6 @@ export default function EventSpace() {
           <img
             src={currentEventImages[currentImageIndex]}
             alt={`Fullscreen ${currentImageIndex + 1}`}
-            className="fullscreen-img"
           />
 
           <button

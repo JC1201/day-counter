@@ -1,0 +1,8 @@
+.detail-thumb {
+  width: 110px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}

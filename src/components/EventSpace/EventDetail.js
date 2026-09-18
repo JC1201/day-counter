@@ -60,14 +60,14 @@ export default function EventDetail() {
                 src={url}
                 alt={`Event ${i}`}
                 onClick={() => setCurrentImageIndex(i)}
-                style={{ width: "150px", borderRadius: "10px", cursor: "pointer" }}
+                className="detail-thumb"
                 />
             ))}
             </div>
         )}
 
         {currentImageIndex !== null && imageUrls.length > 0 && (
-          <div className="fullscreen-modal">
+          <div className="fullscreen-overlay">
             <button className="close-btn" onClick={() => setCurrentImageIndex(null)}>
               <X className="w-5 h-5" />
             </button>
@@ -86,7 +86,6 @@ export default function EventDetail() {
             <img
               src={imageUrls[currentImageIndex]}
               alt={`Fullscreen ${currentImageIndex + 1}`}
-              className="fullscreen-img"
             />
 
             <button
