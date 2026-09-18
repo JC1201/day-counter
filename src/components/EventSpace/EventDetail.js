@@ -1,15 +1,17 @@
 import "./EventDetail.css"
+import "./EventSpace.css"
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import "react-swipeable-list/dist/styles.css";
-// import { X, Pencil } from "lucide-react";
+import { X, ChevronRight, ChevronLeft } from "lucide-react";
 
 
 export default function EventDetail() {
   const { id } = useParams(); // event ID from URL
   const [event, setEvent] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -57,10 +59,45 @@ export default function EventDetail() {
                 key={i}
                 src={url}
                 alt={`Event ${i}`}
-                style={{ width: "150px", borderRadius: "10px" }}
+                onClick={() => setCurrentImageIndex(i)}
+                style={{ width: "150px", borderRadius: "10px", cursor: "pointer" }}
                 />
             ))}
             </div>
+        )}
+
+        {currentImageIndex !== null && imageUrls.length > 0 && (
+          <div className="fullscreen-modal">
+            <button className="close-btn" onClick={() => setCurrentImageIndex(null)}>
+              <X className="w-5 h-5" />
+            </button>
+
+            <button
+              className="nav-btn left"
+              onClick={() =>
+                setCurrentImageIndex((prev) =>
+                  prev > 0 ? prev - 1 : imageUrls.length - 1
+                )
+              }
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <img
+              src={imageUrls[currentImageIndex]}
+              alt={`Fullscreen ${currentImageIndex + 1}`}
+              className="fullscreen-img"
+            />
+
+            <button
+              className="nav-btn right"
+              onClick={() =>
+                setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length)
+              }
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         )}
     </div>
   );
