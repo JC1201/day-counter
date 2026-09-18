@@ -163,8 +163,11 @@ export default function EventSpace() {
 
                 <SwipeAction
                   onClick={() => {
-                  setCurrentEventImages(event.imageUrls);
-                  setCurrentImageIndex(0); 
+                  const urls = (event.imageUrls || []).map((img) =>
+                    typeof img === "string" ? img : img?.url || ""
+                  );
+                  setCurrentEventImages(urls);
+                  setCurrentImageIndex(0);
                   }}
                   className = "swipe-action img"
                 >
@@ -215,8 +218,8 @@ export default function EventSpace() {
 
       {/* Fullscreen Image Viewer */}
       {currentImageIndex !== null && currentEventImages.length > 0 && (
-        <div className="fullscreen-modal">
-          
+        <div className="fullscreen-overlay">
+
           <button className="close-btn" onClick={() => setCurrentImageIndex(null)}>
             <X className="w-5 h-5" />
           </button>
@@ -236,7 +239,6 @@ export default function EventSpace() {
           <img
             src={currentEventImages[currentImageIndex]}
             alt={`Fullscreen ${currentImageIndex + 1}`}
-            className="fullscreen-img"
           />
 
           <button

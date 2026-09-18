@@ -20,5 +20,10 @@
   "devDependencies": {
     "firebase-functions-test": "^3.1.0"
   },
+  "overrides": {
+    "wrap-ansi": {
+      "ansi-styles": "6.2.3"
+    }
+  },
   "private": true
 }
